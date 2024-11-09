@@ -1,2 +1,8 @@
-<!-- src/app/map/map.component.html -->
-<div id="map" class="map-container"></div>
+<!-- map.component.html -->
+<div id="map" class="map-container" style="width: 100%; height: 100vh;"></div>
+<div *ngIf="selectedProperty" class="property-details">
+    <h3>Property Details</h3>
+    <p><strong>Address:</strong> {{ selectedProperty.address }}</p>
+    <p><strong>Price:</strong> {{ selectedProperty.price | currency }}</p>
+    <!-- Add more details as needed -->
+</div>

@@ -1,5 +1,18 @@
-/* src/app/map/map.component.scss */
+/* map.component.scss */
+#map {
+  width: 100%;
+  height: 100vh; /* Adjust as needed */
+}
+.property-details {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+/* map.component.scss */
 .map-container {
-    width: 100%;
-    height: 500px;
-  }
+  width: 100%;
+  height: 80vh;
+}
