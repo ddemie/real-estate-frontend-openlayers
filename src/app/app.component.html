@@ -1,3 +1,9 @@
 <!-- app.component.html -->
-<h1>Commercial Real Estate Map</h1>
-<app-map></app-map>
+<div class="container">
+    <div class="map-container">
+      <app-map></app-map>
+    </div>
+    <div class="details-container">
+      <router-outlet></router-outlet>
+    </div>
+  </div>

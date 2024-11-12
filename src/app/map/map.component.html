@@ -1,8 +1,10 @@
-<!-- map.component.html -->
+<!-- The map container -->
 <div id="map" class="map-container" style="width: 100%; height: 100vh;"></div>
+
+<!-- Property details sidebar -->
 <div *ngIf="selectedProperty" class="property-details">
     <h3>Property Details</h3>
     <p><strong>Address:</strong> {{ selectedProperty.address }}</p>
     <p><strong>Price:</strong> {{ selectedProperty.price | currency }}</p>
-    <!-- Add more details as needed -->
+    <p><strong>Description:</strong> {{ selectedProperty.description }}</p>
 </div>

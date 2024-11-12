@@ -1,0 +1,15 @@
+/* app.component.scss */
+.container {
+    display: flex;
+  }
+  
+  .map-container {
+    width: 50%; /* Set to take up half the page */
+    height: 100vh; /* Full height of the viewport */
+  }
+  
+  .details-container {
+    width: 50%; /* Set to take up the other half */
+    padding: 20px; /* Optional padding for content */
+    overflow-y: auto; /* Add scrolling if content is taller than the viewport */
+  }

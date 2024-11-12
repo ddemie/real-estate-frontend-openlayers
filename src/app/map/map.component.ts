@@ -10,14 +10,15 @@ import { OSM } from 'ol/source';
 import { Vector as VectorSource } from 'ol/source';
 import { Style, Icon } from 'ol/style';
 import { fromLonLat } from 'ol/proj';
-import { CurrencyPipe } from '@angular/common'; // Add CurrencyPipe here if used in template
+import { CurrencyPipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
-  standalone: true, // Make the component standalone
-  imports: [CommonModule] // Import CommonModule and any other necessary modules
+  standalone: true,
+  imports: [CommonModule]
 })
 export class MapComponent implements OnInit {
   map!: Map;
@@ -26,69 +27,57 @@ export class MapComponent implements OnInit {
 
   isBrowser: boolean;
   scenarios: any[] = [];
+  vectorSource: any;
+  vectorLayer!: VectorLayer;
 
   constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
+    @Inject(PLATFORM_ID) platformId: Object,
     private propertyService: PropertyService,
-    private currencyPipe: CurrencyPipe // Inject CurrencyPipe if used in template
+    private currencyPipe: CurrencyPipe,
+    private router: Router
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
+  goToPropertyDetails(propertyId: number): void {
+    this.router.navigate(['/properties', propertyId]);
+  }
+
   ngOnInit(): void {
-    console.log("MapComponent initialized"); // Debug line
-    if (this.isBrowser) {
+    if (this.isBrowser && !this.map) { 
       this.initializeMap();
       this.loadProperties();
     }
   }
 
   initializeMap(): void {
-    const vectorSource = new VectorSource();
-    const vectorLayer = new VectorLayer({
-      source: vectorSource
-    });
-  
-    this.map = new Map({
-      target: 'map', // This should match the ID in your HTML
-      layers: [
-        new TileLayer({
-          source: new OSM()
-        }),
-        vectorLayer
-      ],
-      view: new View({
-        center: fromLonLat([-74.006, 40.7128]), // Adjust as needed
-        zoom: 10
-      })
-    });
+    if (!this.map) {
+      const vectorSource = new VectorSource();
+      const vectorLayer = new VectorLayer({ source: vectorSource });
 
-    // Initialize the OpenLayers map with an OSM (OpenStreetMap) layer
-    this.map = new Map({
-      target: "map",
-      layers: [
-        new TileLayer({
-          source: new OSM()
+      this.map = new Map({
+        target: "map",
+        layers: [
+          new TileLayer({
+            source: new OSM(),
+          }),
+          vectorLayer,
+        ],
+        view: new View({
+          center: fromLonLat([-74.006, 40.7128]),
+          zoom: 10,
         }),
-        vectorLayer
-      ],
-      view: new View({
-        center: fromLonLat([-74.006, 40.7128]), // Default to New York City
-        zoom: 10
-      })
-    });
+      });
+
+      this.vectorSource = vectorSource;
+    }
   }
 
   loadProperties(): void {
     this.propertyService.getProperties().subscribe((data) => {
       this.properties = data;
+      console.log("Properties loaded:", this.properties);
       this.addMarkers();
-    });
-  }
-
-  loadScenarios(): void {
-    this.propertyService.getScenarios().subscribe((data) => {
-      this.scenarios = data;
     });
   }
 
@@ -97,12 +86,11 @@ export class MapComponent implements OnInit {
     const iconStyle = new Style({
       image: new Icon({
         anchor: [0.5, 1],
-        src: 'assets/marker.png', // Path to your marker icon
-        scale: 0.5 // Adjust scale to 0.5 for a 16x16 size if the original is 32x32 pixels
+        src: 'assets/marker.png',
+        scale: 0.5
       })
     });
 
-    // Add a marker for each property
     this.properties.forEach((property) => {
       const marker = new Feature({
         geometry: new Point(fromLonLat([property.longitude, property.latitude])),
@@ -112,29 +100,34 @@ export class MapComponent implements OnInit {
       vectorSource.addFeature(marker);
     });
 
-    // Add the vector source to a new layer
-    this.map.addLayer(
-      new VectorLayer({
-        source: vectorSource
-      })
-    );
+    this.vectorLayer = new VectorLayer({
+      source: vectorSource,
+      declutter: true
+    });
+    this.map.addLayer(this.vectorLayer);
+    this.vectorLayer.setZIndex(10);
 
-    // Set up a click handler to show property details
-    this.map.on('click', (event) => {
+    // Listen for clicks on map features
+    this.map.on('singleclick', (event) => {
+      console.log('Map clicked at coordinates:', event.coordinate);
       this.map.forEachFeatureAtPixel(event.pixel, (feature) => {
-        this.selectedProperty = feature.get('property');
-        this.showPropertyDetails(this.selectedProperty);
+        const property = feature.get('property');
+        if (property) {
+          console.log('Property clicked:', property);
+          this.showPropertyDetails(property);
+        }
       });
     });
   }
 
   showPropertyDetails(property: any): void {
-    this.selectedProperty = property;
-    // Format the price using CurrencyPipe
-    this.selectedProperty.formattedPrice = this.currencyPipe.transform(
-      this.selectedProperty.price,
-      'USD'
-    );
+    this.selectedProperty = null;
+    setTimeout(() => {
+      this.selectedProperty = {
+        ...property,
+        formattedPrice: this.currencyPipe.transform(property.price, 'USD')
+      };
+    });
   }
 
   applyScenarioToProperty(propertyId: number, scenarioId: number): void {

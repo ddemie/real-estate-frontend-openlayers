@@ -1,0 +1,13 @@
+<!-- property-details.component.html -->
+<div *ngIf="property" class="property-details">
+    <h2>{{ property.name || 'Property Details' }}</h2>
+    <p><strong>Address:</strong> {{ property.address }}</p>
+    <p><strong>Price:</strong> {{ property.price | currency }}</p>
+    <p><strong>Description:</strong> {{ property.description }}</p>
+    <!-- Add more details as needed -->
+  </div>
+  
+  <!-- Optional: Display a loading message if property data hasn't loaded yet -->
+  <div *ngIf="!property">
+    <p>Loading property details...</p>
+  </div>
