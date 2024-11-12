@@ -4,6 +4,7 @@
 <!-- Property details sidebar -->
 <div *ngIf="selectedProperty" class="property-details">
     <h3>Property Details</h3>
+    <p><strong>Name:</strong> {{ selectedProperty.name }}</p>
     <p><strong>Address:</strong> {{ selectedProperty.address }}</p>
     <p><strong>Price:</strong> {{ selectedProperty.price | currency }}</p>
     <p><strong>Description:</strong> {{ selectedProperty.description }}</p>
